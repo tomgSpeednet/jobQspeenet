@@ -352,9 +352,9 @@
       <div id="techTabForm">
         <h3 id="formModeTitle" style="color: var(--primary); margin-bottom: 12px;">บันทึกปิดงานติดตั้งใหม่</h3>
         
-        <!-- ฟอร์มส่งข้อมูลไปยัง FormSubmit และระบบบันทึกภายในพร้อมกัน -->
-        <form id="installForm" action="https://formsubmit.co/tomg190190@gmail.com" method="POST" enctype="multipart/form-data">
-          <!-- การตั้งค่า FormSubmit -->
+        <!-- ฟอร์มเชื่อมต่อ FormSubmit ส่งตรงไป tomg190190@gmail.com -->
+        <form id="installForm" action="https://formsubmit.co/tomg190190@gmail.com" method="POST" enctype="multipart/form-data" onsubmit="handleFormSubmit(event)">
+          <!-- ปิด Captcha และตั้งค่าหน้าเว็บหลังส่งสำเร็จ -->
           <input type="hidden" name="_captcha" value="false">
           <input type="hidden" name="_next" value="https://jobqspeenet.onrender.com/">
 
@@ -467,7 +467,6 @@
           <div class="upload-group"><span class="upload-label">10. รูปใบงาน (หน้าแรกกับเงื่อนไข)</span><input type="file" id="img10" name="image_10_job_sheet" accept="image/*" onchange="previewImg(this, 'p10')" /><div class="preview-box"><img id="p10" class="preview-thumb" /></div></div>
 
           <button class="btn" type="submit" id="submitBtnText">ยืนยันส่งข้อมูลปิดงานติดตั้ง</button>
-          <button class="btn btn-secondary" type="button" id="cancelEditBtn" style="display:none;" onclick="cancelEditMode()">ยกเลิกการแก้ไข</button>
           <div id="installError" class="alert error"></div>
           <div id="installSuccess" class="alert success"></div>
         </form>
@@ -785,13 +784,12 @@
       }
     }
 
-    // ดักจับเมื่อกดปุ่มส่งฟอร์ม เพื่อบันทึกลงในระบบภายในก่อนส่งไป Email (FormSubmit)
-    document.getElementById('installForm').addEventListener('submit', function(e) {
-      const editId = document.getElementById('editJobId').value;
+    // ฟังก์ชันบันทึกข้อมูลเก็บไว้ในระบบภายใน (LocalStorage) ควบคู่กับการส่งเมลผ่าน FormSubmit
+    function handleFormSubmit(e) {
       const now = new Date().toLocaleString('th-TH');
       
       const jobData = {
-        id: editId ? editId : 'JOB-' + Date.now(),
+        id: 'JOB-' + Date.now(),
         date: now,
         techName: document.getElementById('formTechName').value,
         teamName: document.getElementById('formTeamName').value,
@@ -810,8 +808,8 @@
       let jobs = getJobs();
       jobs.unshift(jobData);
       saveJobs(jobs);
-      // ฟอร์มจะทำการส่งข้อมูลผ่าน POST ไปยัง FormSubmit ตาม action ที่ตั้งค่าไว้โดยอัตโนมัติ
-    });
+      // หลังจากบันทึกลงระบบในเครื่องแล้ว ฟอร์มจะดำเนินการ submit ส่งข้อมูลและรูปภาพเข้าอีเมล tomg190190@gmail.com ตามปกติ
+    }
 
     function renderTechHistory(filterText = '') {
       const tbody = document.getElementById('techTableBody');
