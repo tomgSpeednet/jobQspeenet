@@ -1,0 +1,1380 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Q Speednet - ระบบปิดงานติดตั้งและจัดการข้อมูลลูกค้า</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --warning: #d97706;
+      --warning-hover: #b45309;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --bg-gradient: linear-gradient(135deg, #0ea5e9, #2563eb);
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+      color: var(--text-main);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .card {
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 12px 40px rgba(2, 6, 23, 0.2);
+      box-sizing: border-box;
+      display: none;
+    }
+
+    .card.active {
+      display: block;
+    }
+
+    .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 12px;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      color: var(--text-main);
+    }
+    
+    h1 { font-size: 24px; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 16px; }
+
+    .brand-title {
+      font-size: 14px;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .badge {
+      font-size: 13px;
+      color: var(--text-muted);
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    p.subtitle {
+      margin: 0 0 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 24px 0 12px;
+      border-left: 4px solid var(--primary);
+      padding-left: 8px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      font-size: 14px;
+      font-family: inherit;
+      transition: 0.2s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    }
+
+    .upload-group {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .upload-label {
+      font-weight: 600;
+      font-size: 13.5px;
+      color: #1e293b;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .preview-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .preview-thumb {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      display: none;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.2s;
+      margin-top: 16px;
+    }
+
+    .btn:hover { background: var(--primary-hover); }
+    .btn-secondary { background: #64748b; margin-top: 8px; }
+    .btn-secondary:hover { background: #475569; }
+    .btn-warning { background: var(--warning); }
+    .btn-warning:hover { background: var(--warning-hover); }
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: var(--danger-hover); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; margin-top: 0; width: auto; display: inline-block; margin-right: 4px; margin-bottom: 4px;}
+
+    .alert {
+      display: none;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13.5px;
+    }
+    .alert.error { background: #fee2e2; color: #991b1b; }
+    .alert.success { background: #dcfce7; color: #166534; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 8px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    .admin-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+    .tab-btn {
+      background: #e2e8f0;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      color: #334155;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .modal-content {
+      background: #fff;
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      border-radius: 16px;
+      padding: 24px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .img-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      background: #f8fafc;
+      text-align: center;
+    }
+    .img-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+    }
+    .img-card span {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 6px;
+      line-height: 1.2;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- 1. หน้าจอ Login -->
+    <div id="loginCard" class="card active">
+      <div class="brand-title">Job Q Speednet</div>
+      <h1>เข้าสู่ระบบ</h1>
+      <p>ระบบปิดงานติดตั้งอินเทอร์เน็ตและตรวจสอบงานติดตั้ง</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginRole">ประเภทผู้ใช้งาน</label>
+          <select id="loginRole" onchange="toggleLoginField()">
+            <option value="tech">ช่างติดตั้ง</option>
+            <option value="admin">Super Admin (ผู้ดูแลระบบสูงสุด)</option>
+          </select>
+        </div>
+
+        <div class="field" id="fieldUsername">
+          <label for="loginUser">ชื่อผู้ใช้งาน (Username)</label>
+          <input type="text" id="loginUser" placeholder="เช่น tech01" />
+        </div>
+
+        <div class="field" id="fieldPassword">
+          <label for="loginPass">รหัสผ่าน</label>
+          <input type="password" id="loginPass" placeholder="••••••••" />
+        </div>
+
+        <button class="btn" type="submit">เข้าสู่ระบบ</button>
+        <div id="loginError" class="alert error"></div>
+      </form>
+    </div>
+
+    <!-- 2. หน้าจอช่าง / ผู้ใช้งาน -->
+    <div id="techCard" class="card">
+      <div class="header-flex">
+        <div>
+          <div class="brand-title">Q Speednet</div>
+          <h1 id="techGreeting">ระบบจัดการงานติดตั้ง</h1>
+        </div>
+        <div class="badge">ผู้ใช้: <span id="displayTechName">-</span></div>
+      </div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" type="button" onclick="switchTechTab('form')">1. ฟอร์มปิดงานติดตั้ง</button>
+        <button class="tab-btn" type="button" onclick="switchTechTab('history')">2. ตรวจสอบ & รีเช็คงานทั้งหมดย้อนหลัง</button>
+      </div>
+
+      <div id="techTabForm">
+        <h3 id="formModeTitle" style="color: var(--primary); margin-bottom: 12px;">บันทึกปิดงานติดตั้งใหม่</h3>
+        <form id="installForm">
+          <input type="hidden" id="editJobId" value="" />
+          <div class="section-title">ข้อมูลช่างผู้ปฏิบัติงาน</div>
+          <div class="grid-2">
+            <div class="field">
+              <label>ชื่อช่าง / ผู้บันทึก</label>
+              <input type="text" id="formTechName" readonly style="background: #f1f5f9;" />
+            </div>
+            <div class="field">
+              <label>ทีม / บทบาท</label>
+              <input type="text" id="formTeamName" readonly style="background: #f1f5f9;" />
+            </div>
+          </div>
+
+          <div class="section-title">ข้อมูลลูกค้า</div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="custName">ชื่อ - นามสกุล ลูกค้า</label>
+              <input type="text" id="custName" placeholder="คุณสมชาย ใจดี" required />
+            </div>
+            <div class="field">
+              <label for="custCardId">หมายเลขบัตรประชาชน (13 หลัก)</label>
+              <input type="text" id="custCardId" placeholder="x-xxxx-xxxxx-xx-x" maxlength="13" required />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="custContact">ช่องทางติดต่ออื่นๆ / เบอร์ลูกค้า</label>
+              <input type="text" id="custContact" placeholder="เบอร์โทร หรือ Line ID" required />
+            </div>
+            <div class="field">
+              <label for="houseNo">บ้านเลขที่ / รายละเอียดที่อยู่</label>
+              <input type="text" id="houseNo" placeholder="123/4 หมู่ 5 ถนน..." required />
+            </div>
+          </div>
+
+          <div class="section-title">เลือกแพ็กเกจโปรโมชั่นอินเทอร์เน็ต</div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="packageSelect">แพ็กเกจความเร็ว</label>
+              <select id="packageSelect" required>
+                <option value="">-- เลือกโปรโมชั่น --</option>
+                <option value="1000/300 (299 บาท)">1000/300 Mbps - 299 บาท</option>
+                <option value="1000/500 (399 บาท)">1000/500 Mbps - 399 บาท</option>
+                <option value="1000/1000 (499 บาท)">1000/1000 Mbps - 499 บาท</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="isPortIn">สถานะลูกค้า & ของแถมกล้อง</label>
+              <select id="isPortIn" onchange="toggleExtraCameraFields()" required>
+                <option value="ลูกค้าใหม่">ลูกค้าใหม่ (แถมกล้อง 1 ตัว)</option>
+                <option value="ลูกค้าย้ายค่าย">ลูกค้าย้ายค่าย (แถมกล้อง 2 ตัว)</option>
+                <option value="ลูกค้าเพิ่มกล้อง">ลูกค้าเพิ่มกล้อง</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- ส่วนเพิ่มเติม สำหรับกรณีลูกค้าเพิ่มกล้อง (ปรับปรุงตรงนี้) -->
+          <div id="extraCameraSection" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; padding: 14px; border-radius: 10px; margin-bottom: 14px;">
+            <div class="section-title" style="margin-top: 0; color: #1d4ed8; border-left-color: #1d4ed8;">รายละเอียดกล้องแถมเดิม และ กล้องที่เพิ่ม</div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="defaultCameraSn">SN กล้องแถมเดิม (จากโปรโมชั่น 1 ตัว)</label>
+                <input type="text" id="defaultCameraSn" placeholder="ระบุ Serial Number กล้องแถมเดิม" />
+              </div>
+              <div class="field">
+                <label for="extraCameraQty">จำนวนกล้องที่เพิ่ม (ตัว)</label>
+                <input type="number" id="extraCameraQty" min="1" value="1" placeholder="ระบุจำนวนกล้องที่เพิ่ม" />
+              </div>
+            </div>
+            <div class="field" style="margin-top: 10px;">
+              <label for="extraCameraSn">Serial Number (SN) ของกล้องที่เพิ่ม</label>
+              <input type="text" id="extraCameraSn" placeholder="ระบุ SN กล้องที่เพิ่ม (หากมีหลายตัวคั่นด้วยจุลภาค เช่น SN01, SN02)" />
+            </div>
+          </div>
+
+          <div class="section-title">พิกัดสถานที่ติดตั้ง</div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="latL2">พิกัด L2 ที่ติดตั้งให้ลูกค้า (Splitter)</label>
+              <input type="text" id="latL2" placeholder="เช่น 13.7563, 100.5018" required />
+            </div>
+            <div class="field">
+              <label for="latCust">พิกัดบ้านลูกค้าที่ติดตั้ง</label>
+              <input type="text" id="latCust" placeholder="เช่น 13.7580, 100.5040" required />
+            </div>
+          </div>
+
+          <div class="section-title">รูปถ่ายยืนยันจุดติดตั้ง (10 จุดบังคับ)</div>
+
+          <div class="upload-group"><span class="upload-label">1. รูปลูกค้าพร้อมกับใบงาน</span><input type="file" id="img1" accept="image/*" onchange="previewImg(this, 'p1')" /><div class="preview-box"><img id="p1" class="preview-thumb" /></div></div>
+          <div class="upload-group"><span class="upload-label">2. หน้าบ้านลูกค้า</span><input type="file" id="img2" accept="image/*" onchange="previewImg(this, 'p2')" /><div class="preview-box"><img id="p2" class="preview-thumb" /></div></div>
+          <div class="upload-group"><span class="upload-label">3. PON ที่ใช้งานติดตั้ง (ออกจาก L2)</span><input type="file" id="img3" accept="image/*" onchange="previewImg(this, 'p3')" /><div class="preview-box"><img id="p3" class="preview-thumb" /></div></div>
+          <div class="upload-group"><span class="upload-label">4. ค่า Power ออกจาก PON L2</span><input type="file" id="img4" accept="image/*" onchange="previewImg(this, 'p4')" /><div class="preview-box"><img id="p4" class="preview-thumb" /></div></div>
+          <div class="upload-group"><span class="upload-label">5. มักเล้งสายจาก L2</span><input type="file" id="img5" accept="image/*" onchange="previewImg(this, 'p5')" /><div class="preview-box"><img id="p5" class="preview-thumb" /></div></div>
+          <div class="upload-group"><span class="upload-label">6. มักเล้งสายก่อนถึงบ้านลูกค้า</span><input type="file" id="img6" accept="image/*" onchange="previewImg(this, 'p6')" /><div class="preview-box"><img id="p6" class="preview-thumb" /></div></div>
+          <div class="upload-group"><span class="upload-label">7. ค่า Power เข้า Router ลูกค้า</span><input type="file" id="img7" accept="image/*" onchange="previewImg(this, 'p7')" /><div class="preview-box"><img id="p7" class="preview-thumb" /></div></div>
+          <div class="upload-group"><span class="upload-label">8. จุดติดตั้ง Router</span><input type="file" id="img8" accept="image/*" onchange="previewImg(this, 'p8')" /><div class="preview-box"><img id="p8" class="preview-thumb" /></div></div>
+          
+          <div class="upload-group">
+            <span class="upload-label">9. อุปกรณ์ Router ที่เบิกใช้งาน (ระบุ Serial Number - SN)</span>
+            <input type="text" id="routerSn" placeholder="กรอก Serial Number อุปกรณ์ Router" style="margin-bottom: 8px;" required />
+            <input type="file" id="img9" accept="image/*" onchange="previewImg(this, 'p9')" />
+            <div class="preview-box"><img id="p9" class="preview-thumb" /></div>
+          </div>
+
+          <div class="upload-group"><span class="upload-label">10. รูปใบงาน (หน้าแรกกับเงื่อนไข)</span><input type="file" id="img10" accept="image/*" onchange="previewImg(this, 'p10')" /><div class="preview-box"><img id="p10" class="preview-thumb" /></div></div>
+
+          <button class="btn" type="submit" id="submitBtnText">ยืนยันส่งข้อมูลปิดงานติดตั้ง</button>
+          <button class="btn btn-secondary" type="button" id="cancelEditBtn" style="display:none;" onclick="cancelEditMode()">ยกเลิกการแก้ไข</button>
+          <div id="installError" class="alert error"></div>
+          <div id="installSuccess" class="alert success"></div>
+        </form>
+      </div>
+
+      <!-- แท็บตรวจสอบ & รีเช็คงานย้อนหลัง -->
+      <div id="techTabHistory" style="display: none;">
+        <div class="header-flex" style="margin-bottom: 8px; border-bottom: none;">
+          <div class="section-title" style="margin: 0;">รีเช็คและตรวจสอบงานย้อนหลังทั้งหมดในระบบ (งานตนเอง & ผู้อื่น)</div>
+          <div style="width: 280px;">
+            <input type="text" id="techSearchInput" placeholder="🔍 ค้นหา ชื่อลูกค้า, บัตรประชาชน, SN..." onkeyup="filterTechJobs()" style="padding: 6px 12px; font-size: 13px;" />
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>วันที่/เวลา</th>
+                <th>ช่าง / ทีมผู้ติดตั้ง</th>
+                <th>ชื่อลูกค้า</th>
+                <th>โปรโมชั่น / ข้อมูลกล้อง</th>
+                <th>ที่อยู่ / พิกัด</th>
+                <th>SN อุปกรณ์</th>
+                <th>รูป 10 จุด</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="techTableBody">
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted);">ยังไม่มีข้อมูลในระบบ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" type="button" onclick="logout()" style="margin-top: 24px;">ออกจากระบบ</button>
+    </div>
+
+    <!-- 3. หน้าจอ Super Admin -->
+    <div id="adminCard" class="card">
+      <div class="header-flex">
+        <div>
+          <div class="brand-title">Q Speednet</div>
+          <h1>Super Admin Dashboard</h1>
+        </div>
+        <div class="badge" style="background:#fef3c7; color:#92400e; font-weight:bold;">เฉพาะ Super Admin เท่านั้น</div>
+      </div>
+      <p class="subtitle">จัดการกำหนดสิทธิ์ User / บทบาท / รหัสผ่าน และตรวจสอบประวัติงานติดตั้งทั้งหมดในระบบ</p>
+
+      <!-- ฟอร์มเพิ่ม/แก้ไข User และกำหนดบทบาท -->
+      <div class="admin-box">
+        <h3 style="color:var(--primary);">จัดการ User / กำหนดบทบาทและรหัสผ่าน</h3>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px;">Super Admin สามารถกำหนดให้ User แต่ละคนเป็น แอดมิน, ช่าง หรือ ผู้ดูแลระบบ ได้ที่นี่</p>
+        
+        <div class="grid-2">
+          <div class="field">
+            <label for="newUsername">Username</label>
+            <input type="text" id="newUsername" placeholder="เช่น tech01 หรือ admin_north" />
+          </div>
+          <div class="field">
+            <label for="newPassword">รหัสผ่าน (Password)</label>
+            <input type="password" id="newPassword" placeholder="กำหนดรหัสผ่าน" />
+          </div>
+        </div>
+        
+        <div class="grid-2">
+          <div class="field">
+            <label for="newTechName">ชื่อ - นามสกุล ผู้ใช้งาน</label>
+            <input type="text" id="newTechName" placeholder="เช่น ช่างสมชาย ใจดี" />
+          </div>
+          <div class="field">
+            <label for="newTeamName">ชื่อทีม / สังกัด</label>
+            <input type="text" id="newTeamName" placeholder="เช่น ทีมเหนือ 1 หรือ แผนกบริการลูกค้า" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="newUserRole" style="font-weight: bold; color: var(--primary);">กำหนดบทบาทผู้ใช้งาน (User Role)</label>
+          <select id="newUserRole">
+            <option value="ช่างติดตั้ง">ช่างติดตั้ง (Installer / Technician)</option>
+            <option value="แอดมิน">แอดมิน (Admin / Staff)</option>
+            <option value="ผู้ดูแลระบบ">ผู้ดูแลระบบ (System Supervisor)</option>
+          </select>
+        </div>
+
+        <button class="btn btn-sm" type="button" onclick="saveTechUser()" style="margin-top: 8px;">บันทึกสร้าง / อัปเดต User</button>
+        <div id="adminMsg" class="alert success" style="margin-top: 10px; margin-bottom: 0;"></div>
+      </div>
+
+      <!-- ตารางแสดง User ทั้งหมดในระบบ -->
+      <div class="section-title">รายชื่อผู้ใช้งานทั้งหมดในระบบ (User & Roles)</div>
+      <div style="overflow-x: auto; margin-bottom: 24px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>ชื่อ - นามสกุล</th>
+              <th>ทีม / สังกัด</th>
+              <th>บทบาท (Role)</th>
+              <th>รหัสผ่าน</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="userListTableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted);">ไม่มีข้อมูล User ในระบบ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ตารางแสดงประวัติงานติดตั้งทั้งหมด + ช่องค้นหา -->
+      <div class="header-flex" style="margin-top: 30px; margin-bottom: 8px; border-bottom: none;">
+        <div class="section-title" style="margin: 0;">ตรวจสอบและจัดการประวัติงานติดตั้งทั้งหมดในระบบ</div>
+        <div style="width: 280px;">
+          <input type="text" id="adminSearchInput" placeholder="🔍 ค้นหา ชื่อลูกค้า, บัตรประชาชน, SN..." onkeyup="filterAdminJobs()" style="padding: 6px 12px; font-size: 13px;" />
+        </div>
+      </div>
+      
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>วันที่/เวลา</th>
+              <th>ทีม / ช่างผู้ติดตั้ง</th>
+              <th>ชื่อลูกค้า / บัตรประชาชน / ติดต่อ</th>
+              <th>โปรโมชั่น / ข้อมูลกล้อง</th>
+              <th>ที่อยู่ / พิกัด</th>
+              <th>SN อุปกรณ์</th>
+              <th>รูปถ่าย 10 จุด</th>
+              <th>จัดการข้อมูล</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted);">ยังไม่มีข้อมูลการปิดงานในระบบ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button class="btn btn-secondary" type="button" onclick="logout()" style="margin-top: 20px;">ออกจากระบบ</button>
+    </div>
+
+  </div>
+
+  <!-- Modal 1: แสดงรูปภาพ 10 จุด -->
+  <div id="imageModal" class="modal">
+    <div class="modal-content">
+      <div class="header-flex" style="margin-bottom: 10px;">
+        <h3 id="modalTitle">รูปถ่ายยืนยันทั้ง 10 จุด</h3>
+        <button class="btn btn-sm btn-secondary" type="button" onclick="closeModal()" style="margin-top:0;">ปิดหน้าต่าง</button>
+      </div>
+      <div class="modal-grid" id="modalImageGrid"></div>
+    </div>
+  </div>
+
+  <!-- Modal 2: แก้ไขข้อมูลลูกค้าสำหรับ Super Admin -->
+  <div id="adminEditModal" class="modal">
+    <div class="modal-content">
+      <div class="header-flex">
+        <h3 style="color: var(--primary);">Super Admin: แก้ไขข้อมูลลูกค้าและงานติดตั้ง</h3>
+        <button class="btn btn-sm btn-secondary" type="button" onclick="closeAdminEditModal()" style="margin-top:0;">ยกเลิก / ปิด</button>
+      </div>
+      <form id="adminEditForm">
+        <input type="hidden" id="modalJobId" />
+        
+        <div class="section-title">ข้อมูลลูกค้า</div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="modalCustName">ชื่อ - นามสกุล ลูกค้า</label>
+            <input type="text" id="modalCustName" required />
+          </div>
+          <div class="field">
+            <label for="modalCustCardId">หมายเลขบัตรประชาชน</label>
+            <input type="text" id="modalCustCardId" maxlength="13" required />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="modalCustContact">ช่องทางติดต่อ / เบอร์โทร</label>
+            <input type="text" id="modalCustContact" required />
+          </div>
+          <div class="field">
+            <label for="modalHouseNo">บ้านเลขที่ / ที่อยู่</label>
+            <input type="text" id="modalHouseNo" required />
+          </div>
+        </div>
+
+        <div class="section-title">แพ็กเกจ & พิกัด & อุปกรณ์</div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="modalPackageSelect">โปรโมชั่นความเร็ว</label>
+            <select id="modalPackageSelect" required>
+              <option value="1000/300 (299 บาท)">1000/300 Mbps - 299 บาท</option>
+              <option value="1000/500 (399 บาท)">1000/500 Mbps - 399 บาท</option>
+              <option value="1000/1000 (499 บาท)">1000/1000 Mbps - 499 บาท</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="modalIsPortIn">ประเภทลูกค้า / ของแถม</label>
+            <select id="modalIsPortIn" onchange="toggleModalExtraCameraFields()" required>
+              <option value="ลูกค้าใหม่">ลูกค้าใหม่ (แถมกล้อง 1 ตัว)</option>
+              <option value="ลูกค้าย้ายค่าย">ลูกค้าย้ายค่าย (แถมกล้อง 2 ตัว)</option>
+              <option value="ลูกค้าเพิ่มกล้อง">ลูกค้าเพิ่มกล้อง</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ฟิลด์กล้องเพิ่มในหน้าต่าง Modal ของ Admin (ปรับปรุงตรงนี้ด้วย) -->
+        <div id="modalExtraCameraSection" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+          <div class="grid-2">
+            <div class="field">
+              <label for="modalDefaultCameraSn">SN กล้องแถมเดิม (จากโปรโมชั่น 1 ตัว)</label>
+              <input type="text" id="modalDefaultCameraSn" placeholder="ระบุ Serial Number กล้องแถมเดิม" />
+            </div>
+            <div class="field">
+              <label for="modalExtraCameraQty">จำนวนกล้องที่เพิ่ม (ตัว)</label>
+              <input type="number" id="modalExtraCameraQty" min="1" value="1" placeholder="ระบุจำนวนกล้องที่เพิ่ม" />
+            </div>
+          </div>
+          <div class="field" style="margin-top: 8px;">
+            <label for="modalExtraCameraSn">Serial Number (SN) ของกล้องที่เพิ่ม</label>
+            <input type="text" id="modalExtraCameraSn" placeholder="ระบุ SN กล้องที่เพิ่ม (หากมีหลายตัวคั่นด้วยจุลภาค เช่น SN01, SN02)" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="modalLatL2">พิกัด L2 (Splitter)</label>
+            <input type="text" id="modalLatL2" required />
+          </div>
+          <div class="field">
+            <label for="modalLatCust">พิกัดบ้านลูกค้า</label>
+            <input type="text" id="modalLatCust" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="modalRouterSn">Serial Number (SN) อุปกรณ์ Router</label>
+          <input type="text" id="modalRouterSn" required />
+        </div>
+
+        <button class="btn btn-warning" type="submit">บันทึกการปรับปรุงข้อมูลโดย Super Admin</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let currentLoggedInTech = null;
+    let uploadedImages = {};
+
+    if (!localStorage.getItem('q_speednet_tech_users')) {
+      const defaultTechs = {
+        "tech01": { pass: "123456", name: "ช่างสมชาย ใจดี", team: "ทีมเหนือ 1", role: "ช่างติดตั้ง" },
+        "admin01": { pass: "123456", name: "แอดมินสมหญิง", team: "แผนกประสานงาน", role: "แอดมิน" }
+      };
+      localStorage.setItem('q_speednet_tech_users', JSON.stringify(defaultTechs));
+    }
+
+    function getTechUsers() {
+      return JSON.parse(localStorage.getItem('q_speednet_tech_users') || '{}');
+    }
+
+    function toggleLoginField() {
+      const role = document.getElementById('loginRole').value;
+      const userField = document.getElementById('fieldUsername');
+      if (role === 'admin') {
+        userField.style.display = 'none';
+        document.getElementById('loginUser').value = 'superadmin';
+      } else {
+        userField.style.display = 'block';
+        document.getElementById('loginUser').value = '';
+      }
+    }
+
+    function toggleExtraCameraFields() {
+      const statusVal = document.getElementById('isPortIn').value;
+      const extraSec = document.getElementById('extraCameraSection');
+      if (statusVal === 'ลูกค้าเพิ่มกล้อง') {
+        extraSec.style.display = 'block';
+      } else {
+        extraSec.style.display = 'none';
+      }
+    }
+
+    function toggleModalExtraCameraFields() {
+      const statusVal = document.getElementById('modalIsPortIn').value;
+      const extraSec = document.getElementById('modalExtraCameraSection');
+      if (statusVal === 'ลูกค้าเพิ่มกล้อง') {
+        extraSec.style.display = 'block';
+      } else {
+        extraSec.style.display = 'none';
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const role = document.getElementById('loginRole').value;
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      const errorBox = document.getElementById('loginError');
+      errorBox.style.display = 'none';
+
+      if (role === 'admin') {
+        if (pass === 'admin1234') {
+          document.getElementById('loginCard').classList.remove('active');
+          document.getElementById('adminCard').classList.add('active');
+          loadAdminDashboard();
+        } else {
+          errorBox.textContent = 'รหัสผ่าน Super Admin ไม่ถูกต้อง (ใช้ admin1234)';
+          errorBox.style.display = 'block';
+        }
+      } else {
+        const techs = getTechUsers();
+        if (!user || !pass) {
+          errorBox.textContent = 'กรุณากรอก Username และรหัสผ่านให้ครบถ้วน';
+          errorBox.style.display = 'block';
+          return;
+        }
+        if (techs[user] && techs[user].pass === pass) {
+          currentLoggedInTech = techs[user].name;
+          const userRole = techs[user].role || 'ช่างติดตั้ง';
+          
+          document.getElementById('loginCard').classList.remove('active');
+          document.getElementById('techCard').classList.add('active');
+          document.getElementById('displayTechName').textContent = `${techs[user].name} (${userRole} - ${techs[user].team})`;
+          document.getElementById('formTechName').value = techs[user].name;
+          document.getElementById('formTeamName').value = `${techs[user].team} [${userRole}]`;
+          switchTechTab('form');
+        } else {
+          errorBox.textContent = 'Username หรือรหัสผ่านไม่ถูกต้อง';
+          errorBox.style.display = 'block';
+        }
+      }
+    });
+
+    function saveTechUser() {
+      const username = document.getElementById('newUsername').value.trim();
+      const pass = document.getElementById('newPassword').value.trim();
+      const name = document.getElementById('newTechName').value.trim();
+      const team = document.getElementById('newTeamName').value.trim();
+      const role = document.getElementById('newUserRole').value;
+      const msgBox = document.getElementById('adminMsg');
+
+      if (!username || !pass || !name || !team) {
+        alert('กรุณากรอกข้อมูลช่องสร้าง/อัปเดต User ให้ครบถ้วนทุกช่อง');
+        return;
+      }
+
+      const techs = getTechUsers();
+      techs[username] = { pass: pass, name: name, team: team, role: role };
+      localStorage.setItem('q_speednet_tech_users', JSON.stringify(techs));
+
+      msgBox.textContent = `สร้าง/อัปเดต User "${username}" บทบาท [${role}] สำเร็จ!`;
+      msgBox.style.display = 'block';
+      
+      document.getElementById('newUsername').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('newTechName').value = '';
+      document.getElementById('newTeamName').value = '';
+      document.getElementById('newUserRole').value = 'ช่างติดตั้ง';
+
+      renderUserListTable();
+      setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
+    }
+
+    function renderUserListTable() {
+      const tbody = document.getElementById('userListTableBody');
+      const techs = getTechUsers();
+      const usernames = Object.keys(techs);
+
+      if (usernames.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">ไม่มีข้อมูล User ในระบบ</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      usernames.forEach(u => {
+        const user = techs[u];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${u}</b></td>
+          <td>${user.name}</td>
+          <td>${user.team}</td>
+          <td><span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:600;">${user.role || 'ช่างติดตั้ง'}</span></td>
+          <td>••••••••</td>
+          <td>
+            <button class="btn btn-sm btn-warning" type="button" onclick="editUserRole('${u}')">แก้ไข</button>
+            <button class="btn btn-sm btn-danger" type="button" onclick="deleteUser('${u}')">ลบ</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function editUserRole(username) {
+      const techs = getTechUsers();
+      const u = techs[username];
+      if (!u) return;
+
+      document.getElementById('newUsername').value = username;
+      document.getElementById('newPassword').value = u.pass || '';
+      document.getElementById('newTechName').value = u.name || '';
+      document.getElementById('newTeamName').value = u.team || '';
+      document.getElementById('newUserRole').value = u.role || 'ช่างติดตั้ง';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteUser(username) {
+      if (confirm(`คุณต้องการลบ User "${username}" ออกจากระบบใช่หรือไม่?`)) {
+        const techs = getTechUsers();
+        delete techs[username];
+        localStorage.setItem('q_speednet_tech_users', JSON.stringify(techs));
+        renderUserListTable();
+      }
+    }
+
+    function switchTechTab(tab) {
+      const btnForm = document.querySelectorAll('.tab-btn')[0];
+      const btnHist = document.querySelectorAll('.tab-btn')[1];
+      const divForm = document.getElementById('techTabForm');
+      const divHist = document.getElementById('techTabHistory');
+
+      if (tab === 'form') {
+        btnForm.classList.add('active');
+        btnHist.classList.remove('active');
+        divForm.style.display = 'block';
+        divHist.style.display = 'none';
+      } else {
+        btnForm.classList.remove('active');
+        btnHist.classList.add('active');
+        divForm.style.display = 'none';
+        divHist.style.display = 'block';
+        loadTechHistory();
+      }
+    }
+
+    function previewImg(input, previewId) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+            
+            const preview = document.getElementById(previewId);
+            preview.src = compressedBase64;
+            preview.style.display = 'block';
+            uploadedImages[previewId] = compressedBase64;
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function getJobs() {
+      return JSON.parse(localStorage.getItem('q_speednet_jobs') || '[]');
+    }
+
+    document.getElementById('installForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const errBox = document.getElementById('installError');
+      const succBox = document.getElementById('installSuccess');
+      errBox.style.display = 'none';
+      succBox.style.display = 'none';
+
+      const editId = document.getElementById('editJobId').value;
+      const techName = document.getElementById('formTechName').value;
+      const teamName = document.getElementById('formTeamName').value;
+      const custName = document.getElementById('custName').value.trim();
+      const custCardId = document.getElementById('custCardId').value.trim();
+      const custContact = document.getElementById('custContact').value.trim();
+      const houseNo = document.getElementById('houseNo').value.trim();
+      const packageSelect = document.getElementById('packageSelect').value;
+      const isPortIn = document.getElementById('isPortIn').value;
+      const latL2 = document.getElementById('latL2').value.trim();
+      const latCust = document.getElementById('latCust').value.trim();
+      const routerSn = document.getElementById('routerSn').value.trim();
+
+      const defaultSn = document.getElementById('defaultCameraSn').value.trim();
+      const extraQty = document.getElementById('extraCameraQty').value;
+      const extraSn = document.getElementById('extraCameraSn').value.trim();
+
+      if (!custName || !custCardId || !packageSelect || !latL2 || !latCust || !routerSn) {
+        errBox.textContent = 'กรุณากรอกข้อมูลสำคัญให้ครบถ้วน';
+        errBox.style.display = 'block';
+        return;
+      }
+
+      let cameraBonus = 'แถมกล้อง Wi-Fi 1 ตัว';
+      if (isPortIn === 'ลูกค้าย้ายค่าย') {
+        cameraBonus = 'แถมกล้อง Wi-Fi 2 ตัว (ย้ายค่าย)';
+      } else if (isPortIn === 'ลูกค้าเพิ่มกล้อง') {
+        cameraBonus = `มีกล้องแถมเดิม (SN: ${defaultSn || '-'}) + ซื้อเพิ่ม ${extraQty} ตัว (SN: ${extraSn || '-'})`;
+      }
+
+      let jobs = getJobs();
+
+      if (editId) {
+        let jobIndex = jobs.findIndex(j => String(j.id) === String(editId));
+        if (jobIndex !== -1) {
+          jobs[jobIndex].cust = `${custName}<br><small>บัตร: ${custCardId}</small><br><small>ติดต่อ: ${custContact}</small>`;
+          jobs[jobIndex].packageDetail = `${packageSelect}<br><b style="color:var(--primary);">${cameraBonus}</b>`;
+          jobs[jobIndex].address = `${houseNo}<br><small>L2: ${latL2}</small><br><small>บ้าน: ${latCust}</small>`;
+          jobs[jobIndex].sn = routerSn;
+          jobs[jobIndex].images = { ...uploadedImages };
+
+          try {
+            localStorage.setItem('q_speednet_jobs', JSON.stringify(jobs));
+            succBox.textContent = `แก้ไขข้อมูลงานติดตั้งให้ลูกค้า "${custName}" เรียบร้อยแล้ว!`;
+            succBox.style.display = 'block';
+            setTimeout(() => { cancelEditMode(); switchTechTab('history'); }, 1500);
+          } catch (err) {
+            errBox.textContent = 'พื้นที่จัดเก็บข้อมูลเบราว์เซอร์เต็ม กรุณาลบงานเก่าบางรายการออก';
+            errBox.style.display = 'block';
+          }
+        }
+      } else {
+        const newJob = {
+          id: Date.now(),
+          techName: techName,
+          date: new Date().toLocaleString('th-TH'),
+          techInfo: `${teamName} / ${techName}`,
+          cust: `${custName}<br><small>บัตร: ${custCardId}</small><br><small>ติดต่อ: ${custContact}</small>`,
+          packageDetail: `${packageSelect}<br><b style="color:var(--primary);">${cameraBonus}</b>`,
+          address: `${houseNo}<br><small>L2: ${latL2}</small><br><small>บ้าน: ${latCust}</small>`,
+          sn: routerSn,
+          status: 'ปิดงานสำเร็จ',
+          images: { ...uploadedImages }
+        };
+
+        jobs.unshift(newJob);
+
+        try {
+          localStorage.setItem('q_speednet_jobs', JSON.stringify(jobs));
+          succBox.textContent = `ปิดงานติดตั้งให้ลูกค้า "${custName}" เรียบร้อยแล้ว!`;
+          succBox.style.display = 'block';
+
+          setTimeout(() => {
+            cancelEditMode();
+            succBox.style.display = 'none';
+          }, 2000);
+        } catch (err) {
+          errBox.textContent = 'พื้นที่จัดเก็บข้อมูลเบราว์เซอร์เต็ม กรุณาลบงานเก่าออกบ้าง';
+          errBox.style.display = 'block';
+        }
+      }
+    });
+
+    function loadTechHistory() {
+      const input = document.getElementById('techSearchInput');
+      if (input) input.value = '';
+      renderTechJobTable(getJobs());
+    }
+
+    function renderTechJobTable(jobs) {
+      const tbody = document.getElementById('techTableBody');
+
+      if (jobs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">ยังไม่มีข้อมูลในระบบ</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      jobs.forEach((job) => {
+        let isOwner = (job.techName === currentLoggedInTech);
+        let actionButtons = `
+          <button class="btn btn-sm" type="button" onclick="viewImagesById(${job.id})">ดูรูป</button>
+        `;
+        if (isOwner) {
+          actionButtons += `
+            <button class="btn btn-sm btn-warning" type="button" onclick="editJob(${job.id})">แก้ไข</button>
+            <button class="btn btn-sm btn-danger" type="button" onclick="deleteJob(${job.id})">ลบ</button>
+          `;
+        } else {
+          actionButtons += `<span style="color:#94a3b8; font-size:11px; display:block; margin-top:4px;">(งานคนอื่น)</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${job.date}</td>
+          <td><b>${job.techInfo}</b></td>
+          <td>${job.cust}</td>
+          <td>${job.packageDetail}</td>
+          <td>${job.address}</td>
+          <td><span style="color: var(--primary); font-weight: 600;">${job.sn}</span></td>
+          <td><button class="btn btn-sm" type="button" onclick="viewImagesById(${job.id})">ดูรูป 10 จุด</button></td>
+          <td>${actionButtons}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterTechJobs() {
+      const query = document.getElementById('techSearchInput').value.toLowerCase().trim();
+      const allJobs = getJobs();
+      if (!query) {
+        renderTechJobTable(allJobs);
+        return;
+      }
+      const filtered = allJobs.filter(j => 
+        j.cust.toLowerCase().includes(query) ||
+        j.sn.toLowerCase().includes(query) ||
+        j.techInfo.toLowerCase().includes(query) ||
+        j.address.toLowerCase().includes(query) ||
+        j.packageDetail.toLowerCase().includes(query)
+      );
+      renderTechJobTable(filtered);
+    }
+
+    function loadAdminDashboard() {
+      renderUserListTable();
+      renderAdminJobTable(getJobs());
+    }
+
+    function renderAdminJobTable(jobs) {
+      const tbody = document.getElementById('adminTableBody');
+
+      if (jobs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">ยังไม่มีข้อมูลการปิดงานในระบบ</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      jobs.forEach((job) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${job.date}</td>
+          <td><b>${job.techInfo}</b></td>
+          <td>${job.cust}</td>
+          <td>${job.packageDetail}</td>
+          <td>${job.address}</td>
+          <td><span style="color: var(--primary); font-weight: 600;">${job.sn}</span></td>
+          <td><button class="btn btn-sm" type="button" onclick="viewImagesById(${job.id})">ดูรูป 10 จุด</button></td>
+          <td>
+            <button class="btn btn-sm btn-warning" type="button" onclick="openAdminEditModal(${job.id})">แก้ไขลูกค้า</button>
+            <button class="btn btn-sm btn-danger" type="button" onclick="deleteJob(${job.id})">ลบ</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterAdminJobs() {
+      const query = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+      const allJobs = getJobs();
+      if (!query) {
+        renderAdminJobTable(allJobs);
+        return;
+      }
+      const filtered = allJobs.filter(j => 
+        j.cust.toLowerCase().includes(query) ||
+        j.sn.toLowerCase().includes(query) ||
+        j.techInfo.toLowerCase().includes(query) ||
+        j.address.toLowerCase().includes(query) ||
+        j.packageDetail.toLowerCase().includes(query)
+      );
+      renderAdminJobTable(filtered);
+    }
+
+    function openAdminEditModal(jobId) {
+      const jobs = getJobs();
+      const job = jobs.find(j => String(j.id) === String(jobId));
+      if (!job) return;
+
+      document.getElementById('modalJobId').value = job.id;
+
+      let custParts = job.cust.split('<br>');
+      let nameStr = custParts[0] || '';
+      let cardStr = custParts[1] ? custParts[1].replace('<small>บัตร: ', '').replace('</small>', '') : '';
+      let contactStr = custParts[2] ? custParts[2].replace('<small>ติดต่อ: ', '').replace('</small>', '') : '';
+
+      let addrParts = job.address.split('<br>');
+      let houseStr = addrParts[0] || '';
+      let l2Str = addrParts[1] ? addrParts[1].replace('<small>L2: ', '').replace('</small>', '') : '';
+      let custLatStr = addrParts[2] ? addrParts[2].replace('<small>บ้าน: ', '').replace('</small>', '') : '';
+
+      document.getElementById('modalCustName').value = nameStr;
+      document.getElementById('modalCustCardId').value = cardStr;
+      document.getElementById('modalCustContact').value = contactStr;
+      document.getElementById('modalHouseNo').value = houseStr;
+      document.getElementById('modalLatL2').value = l2Str;
+      document.getElementById('modalLatCust').value = custLatStr;
+      document.getElementById('modalRouterSn').value = job.sn;
+
+      if (job.packageDetail.includes('299')) document.getElementById('modalPackageSelect').value = '1000/300 (299 บาท)';
+      else if (job.packageDetail.includes('399')) document.getElementById('modalPackageSelect').value = '1000/500 (399 บาท)';
+      else document.getElementById('modalPackageSelect').value = '1000/1000 (499 บาท)';
+
+      if (job.packageDetail.includes('ย้ายค่าย')) {
+        document.getElementById('modalIsPortIn').value = 'ลูกค้าย้ายค่าย';
+        document.getElementById('modalExtraCameraSection').style.display = 'none';
+      } else if (job.packageDetail.includes('มีกล้องแถมเดิม') || job.packageDetail.includes('ซื้อเพิ่ม')) {
+        document.getElementById('modalIsPortIn').value = 'ลูกค้าเพิ่มกล้อง';
+        document.getElementById('modalExtraCameraSection').style.display = 'block';
+      } else {
+        document.getElementById('modalIsPortIn').value = 'ลูกค้าใหม่';
+        document.getElementById('modalExtraCameraSection').style.display = 'none';
+      }
+
+      document.getElementById('adminEditModal').style.display = 'flex';
+    }
+
+    function closeAdminEditModal() {
+      document.getElementById('adminEditModal').style.display = 'none';
+    }
+
+    document.getElementById('adminEditForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const jobId = document.getElementById('modalJobId').value;
+      let jobs = getJobs();
+      let jobIndex = jobs.findIndex(j => String(j.id) === String(jobId));
+
+      if (jobIndex !== -1) {
+        const custName = document.getElementById('modalCustName').value.trim();
+        const custCardId = document.getElementById('modalCustCardId').value.trim();
+        const custContact = document.getElementById('modalCustContact').value.trim();
+        const houseNo = document.getElementById('modalHouseNo').value.trim();
+        const packageSelect = document.getElementById('modalPackageSelect').value;
+        const isPortIn = document.getElementById('modalIsPortIn').value;
+        const latL2 = document.getElementById('modalLatL2').value.trim();
+        const latCust = document.getElementById('modalLatCust').value.trim();
+        const routerSn = document.getElementById('modalRouterSn').value.trim();
+
+        const defaultSn = document.getElementById('modalDefaultCameraSn').value.trim();
+        const extraQty = document.getElementById('modalExtraCameraQty').value;
+        const extraSn = document.getElementById('modalExtraCameraSn').value.trim();
+
+        let cameraBonus = 'แถมกล้อง Wi-Fi 1 ตัว';
+        if (isPortIn === 'ลูกค้าย้ายค่าย') {
+          cameraBonus = 'แถมกล้อง Wi-Fi 2 ตัว (ย้ายค่าย)';
+        } else if (isPortIn === 'ลูกค้าเพิ่มกล้อง') {
+          cameraBonus = `มีกล้องแถมเดิม (SN: ${defaultSn || '-'}) + ซื้อเพิ่ม ${extraQty} ตัว (SN: ${extraSn || '-'})`;
+        }
+
+        jobs[jobIndex].cust = `${custName}<br><small>บัตร: ${custCardId}</small><br><small>ติดต่อ: ${custContact}</small>`;
+        jobs[jobIndex].packageDetail = `${packageSelect}<br><b style="color:var(--primary);">${cameraBonus}</b>`;
+        jobs[jobIndex].address = `${houseNo}<br><small>L2: ${latL2}</small><br><small>บ้าน: ${latCust}</small>`;
+        jobs[jobIndex].sn = routerSn;
+
+        localStorage.setItem('q_speednet_jobs', JSON.stringify(jobs));
+        closeAdminEditModal();
+        loadAdminDashboard();
+        alert(`Super Admin อัปเดตข้อมูลลูกค้า "${custName}" เรียบร้อยแล้ว!`);
+      }
+    });
+
+    function editJob(jobId) {
+      const jobs = getJobs();
+      const job = jobs.find(j => String(j.id) === String(jobId));
+      if (!job) return;
+
+      switchTechTab('form');
+      document.getElementById('formModeTitle').textContent = `แก้ไขข้อมูลงานติดตั้ง (รหัสงาน: ${job.id})`;
+      document.getElementById('submitBtnText').textContent = 'บันทึกการแก้ไขข้อมูล';
+      document.getElementById('cancelEditBtn').style.display = 'block';
+      document.getElementById('editJobId').value = job.id;
+
+      let custParts = job.cust.split('<br>');
+      let nameStr = custParts[0] || '';
+      let cardStr = custParts[1] ? custParts[1].replace('<small>บัตร: ', '').replace('</small>', '') : '';
+      let contactStr = custParts[2] ? custParts[2].replace('<small>ติดต่อ: ', '').replace('</small>', '') : '';
+
+      let addrParts = job.address.split('<br>');
+      let houseStr = addrParts[0] || '';
+      let l2Str = addrParts[1] ? addrParts[1].replace('<small>L2: ', '').replace('</small>', '') : '';
+      let custLatStr = addrParts[2] ? addrParts[2].replace('<small>บ้าน: ', '').replace('</small>', '') : '';
+
+      document.getElementById('custName').value = nameStr;
+      document.getElementById('custCardId').value = cardStr;
+      document.getElementById('custContact').value = contactStr;
+      document.getElementById('houseNo').value = houseStr;
+      document.getElementById('latL2').value = l2Str;
+      document.getElementById('latCust').value = custLatStr;
+      document.getElementById('routerSn').value = job.sn;
+
+      if (job.packageDetail.includes('ย้ายค่าย')) {
+        document.getElementById('isPortIn').value = 'ลูกค้าย้ายค่าย';
+        document.getElementById('extraCameraSection').style.display = 'none';
+      } else if (job.packageDetail.includes('มีกล้องแถมเดิม') || job.packageDetail.includes('ซื้อเพิ่ม')) {
+        document.getElementById('isPortIn').value = 'ลูกค้าเพิ่มกล้อง';
+        document.getElementById('extraCameraSection').style.display = 'block';
+      } else {
+        document.getElementById('isPortIn').value = 'ลูกค้าใหม่';
+        document.getElementById('extraCameraSection').style.display = 'none';
+      }
+
+      uploadedImages = job.images ? { ...job.images } : {};
+      for (let i = 1; i <= 10; i++) {
+        let prev = document.getElementById('p' + i);
+        if (uploadedImages['p' + i]) {
+          prev.src = uploadedImages['p' + i];
+          prev.style.display = 'block';
+        } else {
+          prev.style.display = 'none';
+        }
+      }
+    }
+
+    function cancelEditMode() {
+      document.getElementById('installForm').reset();
+      document.getElementById('editJobId').value = '';
+      document.getElementById('formModeTitle').textContent = 'บันทึกปิดงานติดตั้งใหม่';
+      document.getElementById('submitBtnText').textContent = 'ยืนยันส่งข้อมูลปิดงานติดตั้ง';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+      document.getElementById('extraCameraSection').style.display = 'none';
+      
+      const techName = document.getElementById('formTechName').value;
+      const teamName = document.getElementById('formTeamName').value;
+      document.getElementById('formTechName').value = techName;
+      document.getElementById('formTeamName').value = teamName;
+
+      for (let i = 1; i <= 10; i++) {
+        let p = document.getElementById('p' + i);
+        if (p) p.style.display = 'none';
+      }
+      uploadedImages = {};
+    }
+
+    function deleteJob(jobId) {
+      if (confirm('คุณต้องการลบข้อมูลงานติดตั้งนี้ใช่หรือไม่?')) {
+        let jobs = getJobs();
+        jobs = jobs.filter(j => String(j.id) !== String(jobId));
+        localStorage.setItem('q_speednet_jobs', JSON.stringify(jobs));
+        
+        if (document.getElementById('adminCard').classList.contains('active')) {
+          loadAdminDashboard();
+        } else {
+          loadTechHistory();
+        }
+      }
+    }
+
+    const imageLabels = {
+      p1: "1. รูปลูกค้าพร้อมใบงาน",
+      p2: "2. หน้าบ้านลูกค้า",
+      p3: "3. PON ที่ใช้งาน (ออกจาก L2)",
+      p4: "4. ค่า Power ออกจาก L2",
+      p5: "5. มักเล้งสายจาก L2",
+      p6: "6. มักเล้งสายก่อนถึงบ้าน",
+      p7: "7. ค่า Power เข้า Router",
+      p8: "8. จุดติดตั้ง Router",
+      p9: "9. อุปกรณ์ Router (SN)",
+      p10: "10. รูปใบงาน (หน้าแรก/เงื่อนไข)"
+    };
+
+    function viewImagesById(jobId) {
+      const jobs = getJobs();
+      const job = jobs.find(j => String(j.id) === String(jobId));
+      if (!job) return;
+
+      const grid = document.getElementById('modalImageGrid');
+      document.getElementById('modalTitle').textContent = `รูปถ่ายงาน: ${job.cust.split('<')[0]} (${job.techInfo})`;
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= 10; i++) {
+        const key = 'p' + i;
+        const imgData = job.images && job.images[key];
+        
+        const div = document.createElement('div');
+        div.className = 'img-card';
+        if (imgData) {
+          div.innerHTML = `
+            <a href="${imgData}" target="_blank"><img src="${imgData}" alt="จุดที่ ${i}" /></a>
+            <span>${imageLabels[key]}</span>
+          `;
+        } else {
+          div.innerHTML = `
+            <div style="height:100px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:12px;">ไม่มีรูป</div>
+            <span>${imageLabels[key]}</span>
+          `;
+        }
+        grid.appendChild(div);
+      }
+
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+
+    function logout() {
+      currentLoggedInTech = null;
+      cancelEditMode();
+      document.getElementById('techCard').classList.remove('active');
+      document.getElementById('adminCard').classList.remove('active');
+      document.getElementById('loginCard').classList.add('active');
+      document.getElementById('loginForm').reset();
+      toggleLoginField();
+    }
+
+    toggleLoginField();
+  </script>
+</body>
+</html>
